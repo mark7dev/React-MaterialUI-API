@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-
 import './App.css';
+
+import request from 'superagent';
 
 import Button from '@material-ui/core/Button';
 import AppBar from '@material-ui/core/AppBar';
@@ -45,6 +46,32 @@ class App extends Component {
       open: !this.state.open
     });
   };
+
+  //Conection with API 
+  componentWillMount = () => {
+    request
+      .get('https://mighty-dusk-99565.herokuapp.com/api/v1/companies')
+      .then(response => {
+        this.setState({
+          companies: response.body.companies
+        });
+      });
+  }
+
+  onSaveCompany = e => {
+    const company = {
+      name: this.refs.companyName
+    };
+
+    request
+      .set('Content-Type', 'application/json')
+      .post('https://mighty-dusk-99565.herokuapp.com/api/v1/companies')
+      .send('company')
+      .then(newCompany => {
+        console.log(newCompany);
+      });
+  }
+
 
   render() {
     const AppBarStyles = {
@@ -105,8 +132,8 @@ class App extends Component {
          <TableBody>
           { this.state.companies.map(company => {
             return (
-              <TableRow>
-                <TableCell>{ company.id }</TableCell>
+              <TableRow key={ company._id }>
+                <TableCell>{ company._id }</TableCell>
                 <TableCell>{ company.name }</TableCell>
               </TableRow>
             );
