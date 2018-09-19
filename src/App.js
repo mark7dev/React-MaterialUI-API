@@ -20,6 +20,7 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import { TextField } from '@material-ui/core';
 
 class App extends Component {
   constructor() {
@@ -27,16 +28,9 @@ class App extends Component {
 
     this.state = {
       open: false,
-      companies: [{
-        id: 1,
-        name: "Google"
-      }, {
-        id: 2,
-        name: "Netflix"
-      }, {
-        id: 3,
-        name: 'Facebook'
-      }]
+      companies: [],
+      //Creating company with form
+      companyName: ''
     };
   }
 
@@ -47,10 +41,10 @@ class App extends Component {
     });
   };
 
-  //Conection with API 
-  componentWillMount = () => {
+  //Creating company with form
+  fetchCompanies = () => {
     request
-      .get('https://mighty-dusk-99565.herokuapp.com/api/v1/companies')
+      .get('http://localhost:3000/api/v1/companies')
       .then(response => {
         this.setState({
           companies: response.body.companies
@@ -58,19 +52,47 @@ class App extends Component {
       });
   }
 
+  //Creating company with form
+  componentWillMount = () => {
+    this.fetchCompanies()
+  }
+
+  //Creating company with form
   onSaveCompany = e => {
-    const company = {
-      name: this.refs.companyName
-    };
+    e.preventDefault();
 
     request
+      .post('http://localhost:3000/api/v1/companies')
+      .send({
+        name: this.state.companyName
+      })
       .set('Content-Type', 'application/json')
-      .post('https://mighty-dusk-99565.herokuapp.com/api/v1/companies')
-      .send('company')
-      .then(newCompany => {
-        console.log(newCompany);
-      });
+      .then(this.fetchCompanies);
   }
+
+  saveCompanyNameInState = e => {
+    this.setState({
+      companyName: e.target.value});
+  }
+
+  //Code to test request on console chrome
+  // onSaveCompany = e => {
+  //   const company = {
+  //     name: this.refs.companyName
+  //   };
+
+  //   request
+  //     //Type of information
+  //     .set('Content-Type', 'application/json')
+  //     //Endpoint
+  //     .post('http://localhost:3000/api/v1/companies')
+  //     //Send object to endpoint
+  //     .send('company')
+  //     //Respuesta
+  //     .then(newCompany => {
+  //       console.log(newCompany);
+  //     });
+  // }
 
 
   render() {
@@ -140,6 +162,18 @@ class App extends Component {
           }) }
          </TableBody>
        </Table>
+       {/* Creating company with form */}
+       <form onSubmit={ this.onSaveCompany }>
+       <div>
+        <TextField
+          id="company-name"
+          label="Company Name"
+          onChange={ this.saveCompanyNameInState }
+        />
+        <Button color='secondary' type='submit'>Save</Button>
+
+       </div>
+       </form>
       </React.Fragment>
     );
   }
